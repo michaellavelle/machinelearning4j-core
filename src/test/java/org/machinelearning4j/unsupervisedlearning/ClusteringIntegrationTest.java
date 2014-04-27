@@ -94,7 +94,7 @@ public class ClusteringIntegrationTest {
 				new Clusterer<House>(trainingSet,clusteringAlgorithm);
 
 		// Add our housing data to the training set
-		trainingSet.add(houses);
+		trainingSet.setTrainingElementsSource(houses);
 
 		// Get the element centroids for this training set
 		Set<Centroid<House>> houseDataCentroids = houseClusterer.getCentroids();

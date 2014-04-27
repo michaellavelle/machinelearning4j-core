@@ -15,34 +15,18 @@
  */
 package org.machinelearning4j.algorithms.supervisedlearning;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * A logistic regression algorithm implementation using batch gradient descent
  * 
  * @author Michael Lavelle
- */
+ */ 
 public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 		LogisticRegressionAlgorithm<GradientDescentAlgorithmTrainingContext> {
 
-	public LogisticRegressionBatchGradientDescentAlgorithmImpl() {
-	}
-
-	private boolean takeSnapshotOfCostFunctionValueIfApplicable(
-			double[][] featureMatrix, double[] labelVector,
-			GradientDescentAlgorithmTrainingContext trainingContext,
-			LogisticRegressionHypothesisFunction hypothesisFunction) {
-		if (trainingContext.getCostFunctionSnapshotIntervalInIterations() != null && trainingContext.getCurrentIteration()
-				% trainingContext.getCostFunctionSnapshotIntervalInIterations() == 0) {
-			Double[] labelsArray = new Double[labelVector.length];
-			for (int i = 0; i < labelVector.length; i++) {
-				labelsArray[i] = new Double(labelVector[i]);
-			}
-			trainingContext.addCostFunctionSnapshotValue(getCostFunction()
-					.getCost(hypothesisFunction, featureMatrix, labelsArray));
-			return true;
-		}
-		return false;
-	}
+	private static Logger LOG = Logger.getLogger(LogisticRegressionBatchGradientDescentAlgorithmImpl.class);
 
 	@Override
 	public NumericHypothesisFunction train(double[][] featureMatrix,
@@ -76,6 +60,7 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 		}
 
 		if (trainingContext.isTrainingSuccessful()) {
+			LOG.debug("Determined Logistic Regression Hypothesis Function using Batch Gradient Descent");
 			return hypothesisFunction;
 		} else {
 			if (trainingContext.getConvergenceCriteria() != null) {
@@ -105,6 +90,7 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 		return new LogisticRegressionHypothesisFunction(newThetas,hypothesisFunction.regularizationLambda);
 	}
 
+
 	private double[] getGradients(int thetaCount, double[][] featureMatrix,
 			double[] labelVector,
 			LogisticRegressionHypothesisFunction hypothesisFunction,double regularizationLambda) {
@@ -124,6 +110,25 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 		}
 		return gradients;
 	}
+	
+	private boolean takeSnapshotOfCostFunctionValueIfApplicable(
+			double[][] featureMatrix, double[] labelVector,
+			GradientDescentAlgorithmTrainingContext trainingContext,
+			LogisticRegressionHypothesisFunction hypothesisFunction) {
+		if (trainingContext.getCostFunctionSnapshotIntervalInIterations() != null && trainingContext.getCurrentIteration()
+				% trainingContext.getCostFunctionSnapshotIntervalInIterations() == 0) {
+			Double[] labelsArray = new Double[labelVector.length];
+			for (int i = 0; i < labelVector.length; i++) {
+				labelsArray[i] = new Double(labelVector[i]);
+			}
+			trainingContext.addCostFunctionSnapshotValue(getCostFunction()
+					.getCost(hypothesisFunction, featureMatrix, labelsArray));
+			return true;
+		}
+		return false;
+	}
+	
+	
 
 	protected LogisticRegressionHypothesisFunction getInitialHypothesisFunction(
 			int thetaCount,double regularizationLambda) {
@@ -145,5 +150,6 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 	public CostFunction<double[], Double, LogisticRegressionHypothesisFunction> getCostFunction() {
 		return new LogisticRegressionCostFunction();
 	}
+
 
 }

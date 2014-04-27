@@ -15,6 +15,8 @@
  */
 package org.machinelearning4j.core;
 
+import java.util.Iterator;
+
 
 /**
  * Stores data in memory for training sets consisting of
@@ -29,12 +31,20 @@ public interface TrainingSet<T> {
 	/**
 	 * @param elements Data elements to add to training set
 	 */
-	void add(Iterable<T> elements);
+	void setTrainingElementsSource(Iterable<T> elements);
+
+	void setTrainingElementsSource(Iterator<T> elements);
 	
+	
+	public Iterator<T> getSourceElementsIterator();
+
+
 	/**
 	 * @return The numeric features for each element of the training set
 	 */
 	double[][] getFeatureMatrix();
+	
+	public int getSize();
 
 
 	/**

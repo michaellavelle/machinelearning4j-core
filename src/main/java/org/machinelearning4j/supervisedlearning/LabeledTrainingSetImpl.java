@@ -51,21 +51,29 @@ public class LabeledTrainingSetImpl<T,L>  extends TrainingSetImpl<T> implements 
 		labels.add(labelDefinition.getLabel(element));
 	}
 	
-	/**
-	 * @param elements Data elements to add to training set
-	 */
+	
+
 	@Override
-	public void add(Iterable<T> elements) {
-		for (T element : elements)
-		{
-			addFeatureValuesForElement(element);
-			addLabelForElement(element);
-		}
+	protected void processElement(T element, int index) {
+		super.processElement(element, index);
+		addLabelForElement(element);
+
+	}
+
+	@Override
+	protected void ensureDataSize(int length) {
+		labels = labels.subList(0, length );
+		super.ensureDataSize(length);
 	}
 
 	@Override
 	public List<L> getLabels() {
 		return labels;
+	}
+
+	@Override
+	public LabelDefinition<T, L> getLabelDefinition() {
+		return labelDefinition;
 	}
 
 }

@@ -15,6 +15,7 @@
  */
 package org.machinelearning4j.algorithms.supervisedlearning;
 
+
 /**
  * 
  * @author Michael Lavelle
@@ -50,5 +51,15 @@ public class LogisticRegressionHypothesisFunction implements NumericHypothesisFu
 		}
 		y =  1d/(1d + Math.exp(-y));
 		return y;
+	}
+	
+	public String toString()
+	{
+		String s = "";
+		for (double theta : thetas)
+		{
+			s  = s + "," + theta;
+		}
+		return s;
 	}
 }

@@ -36,37 +36,48 @@ public class BinaryClassifier<T,L,C> implements Classifier<T,L,C> {
 	private L positiveClass;
 	private NumericLabelMapper<L> labelMapper;
 	
+	private TrainingStrategy<C> trainingStrategy;
+
+	
 	public BinaryClassifier(
-			LabeledTrainingSet<T, L> labeledTrainingSet,
 			LogisticRegressionAlgorithm<C> logisticRegressionAlgorithm,NumericLabelMapper<L> labelMapper,L negativeClass,L positiveClass) {
-			if (!labeledTrainingSet.isFeatureScalingConfigured())
-			{
-				throw new IllegalStateException("Logistic regression algorithm requires " +
-						"that feature scaling is configured for the training set");
-			}
-			this.labeledTrainingSet = labeledTrainingSet;
+			
 			this.logisticRegressionAlgorithm = logisticRegressionAlgorithm;
 			this.labelMapper = labelMapper;
 			this.negativeClass = negativeClass;
 			this.positiveClass = positiveClass;
+			this.trainingStrategy = new OfflineTrainingStrategy<C>(logisticRegressionAlgorithm);
 	}
 
 	@Override
-	public void train(C trainingContext) {
+	public void train(LabeledTrainingSet<T, L> labeledTrainingSet,C trainingContext) {
 		
-		double[][] featureMatrix = labeledTrainingSet.getFeatureMatrix();
-		
-		if (!labeledTrainingSet.isDataFeatureScaled())
+		if (!labeledTrainingSet.isFeatureScalingConfigured())
 		{
 			throw new IllegalStateException("Logistic regression algorithm requires " +
-					"that the data in the training set has been feature scaled");
-		}	
+					"that feature scaling is configured for the training set");
+		}
 		
-		hypothesisFunction = logisticRegressionAlgorithm.train(featureMatrix, labelMapper.getLabelValues(labeledTrainingSet.getLabels()),trainingContext);
+		this.labeledTrainingSet = labeledTrainingSet;
+		
+		
+		NumericHypothesisFunction updatedHypothesisFunction = trainingStrategy.train(labeledTrainingSet, labelMapper, trainingContext);
+		if (updatedHypothesisFunction == null)
+		{
+			throw new RuntimeException("Training has completed without returning a hypothesis function");
+		}
+		else
+		{
+			hypothesisFunction = updatedHypothesisFunction;	
+		}
 	}
 	
 	protected ClassificationProbability<L> predictLabel(double[] featureValues)
 	{
+		if (hypothesisFunction == null)
+		{
+			throw new IllegalStateException("No hypothesis function available to use to make predictions - has training been run?");
+		}
 		Double positiveClassProbability = logisticRegressionAlgorithm.predictLabel(featureValues , hypothesisFunction);
 		if (positiveClassProbability == null)
 		{

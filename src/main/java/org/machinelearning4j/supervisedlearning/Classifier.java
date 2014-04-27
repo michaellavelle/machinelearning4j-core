@@ -20,7 +20,7 @@ package org.machinelearning4j.supervisedlearning;
  * 
  * @author Michael Lavelle
  */
-public interface Classifier<T,L,C> extends LabelPredictor<T, ClassificationProbability<L>, C> {
+public interface Classifier<T,L,C> extends LabelPredictor<T, L,ClassificationProbability<L>, C> {
 	public double getTrainingSetPredictionAccuracyPercentage();
 
 }

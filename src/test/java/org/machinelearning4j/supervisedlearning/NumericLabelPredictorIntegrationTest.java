@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import junit.framework.Assert;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.machinelearning4j.algorithms.AlgorithmFactory;
@@ -43,7 +44,9 @@ public class NumericLabelPredictorIntegrationTest {
 	private Iterable<House> houses;
 	private int trainingSetSize;
 	private AlgorithmFactory algorithmFactory;
-
+	
+	private static Logger LOG = Logger.getLogger(NumericLabelPredictorIntegrationTest.class);
+	
 	
 	@Before
 	public void setUp() throws Exception
@@ -70,6 +73,8 @@ public class NumericLabelPredictorIntegrationTest {
 	public void testLabelPrediction_WithNormalEquationLinearRegressionAlgorithm()
 	{		
 		// Create and configure the training set
+		LOG.debug("Building training set");
+		
 		LabeledTrainingSet<House,Number> labeledTrainingSet = 
 				Builders.createLabeledTrainingSetBuilder(House.class,Number.class,trainingSetSize)
 				.withFeatureDefinition(new BedroomsFeatureDefinition())
@@ -82,20 +87,22 @@ public class NumericLabelPredictorIntegrationTest {
 				algorithmFactory.createLinearRegressionNormalEquationAlgorithm();
 				
 		// Create a price (label) predictor for the training set, using this algorithm
-		LabelPredictor<House,Number,LinearRegressionNormalEquationTrainingContext> pricePredictor = 
-				new SingleNumericValueLabelPredictor<House,LinearRegressionNormalEquationTrainingContext>(labeledTrainingSet,linearRegressionAlgorithm);
+		LabelPredictor<House,Number,Number,LinearRegressionNormalEquationTrainingContext> pricePredictor = 
+				new SingleNumericValueLabelPredictor<House,LinearRegressionNormalEquationTrainingContext>(linearRegressionAlgorithm);
 
-		// Add our housing data to the training set
-		labeledTrainingSet.add(houses);
+		// Set our source of housing data on the training set
+		labeledTrainingSet.setTrainingElementsSource(houses);
 		
 		// Create a training context for our chosen algorithm, setting the necessary parameters
 		LinearRegressionNormalEquationTrainingContext trainingContext = new LinearRegressionNormalEquationTrainingContext();
 		trainingContext.setRegularizationLambda(0d);
 
 		// Train the price predictor to learn from training set
-		pricePredictor.train(trainingContext);
-
+		pricePredictor.train(labeledTrainingSet,trainingContext);
+		
 		// Predict a price for a specified house
+		LOG.debug("Predict");
+
 		Number predictedPrice = pricePredictor.predictLabel(new House(1650,3));
 		
 		// Assert the price is not null

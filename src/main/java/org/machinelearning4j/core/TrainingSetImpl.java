@@ -15,8 +15,9 @@
  */
 package org.machinelearning4j.core;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
 
 /**
  * Default implementation of a TrainingSet
@@ -26,39 +27,100 @@ import java.util.List;
 public class TrainingSetImpl<T> implements TrainingSet<T> {
 
 	private NumericFeatureMapper<T> numericFeatureMapper;
-	private List<double[]> elementFeatures;
 	protected int size;
 	protected boolean dataIsFeatureScaled;
 	protected FeatureScaler featureScaler;
 	protected Statistics[] featureStatistics;
+	protected Iterable<T> elements;
+	protected double[][] featureMatrix;
+	protected Iterator<T> elementsIterator;
 	
+	private static Logger LOG = Logger.getLogger(TrainingSetImpl.class);
+
+	
+	public int getSize() {
+		return size;
+	}
+	
+	public Iterator<T> getSourceElementsIterator()
+	{
+		if (elementsIterator == null)
+		{
+			LOG.debug("Accessing training elements source Iterable" );
+			return elements.iterator();
+		}
+		else
+		{
+			LOG.debug("Accessing training elements source Iterator" );
+
+			return elementsIterator;
+		}
+	}
+
 	public TrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,int size)
 	{
-		this.elementFeatures = new ArrayList<double[]>();
 		this.numericFeatureMapper = numericFeatureMapper;
 		this.size = size;
 	}
 	
 	public TrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,FeatureScaler featureScaler,int size)
 	{
-		this.elementFeatures = new ArrayList<double[]>();
 		this.numericFeatureMapper = numericFeatureMapper;
 		this.featureScaler = featureScaler;
 		this.size = size;
 	}
 	
-	
-	
-	protected void addFeatureValuesForElement(T element)
+	protected void processElement(T element,int index)
 	{
-		elementFeatures.add(numericFeatureMapper.getFeatureValues(element));
+		featureMatrix[index] = numericFeatureMapper.getFeatureValues(element);
 	}
+	
+	protected void ensureDataSize(int length)
+	{
+		if (length < size)
+		{
+		LOG.debug("Resizing to:" + length);
+		double[][] resizedFeatureMatrix = new double[length][];
+		for (int i = 0; i < length; i++)
+		{
+			resizedFeatureMatrix[i] = featureMatrix[i];
+		}
+		featureMatrix = null;
+		featureMatrix = resizedFeatureMatrix;
+		}
+	}
+	
+	private double[][] getElementFeatures()
+	{
+		if (featureMatrix == null)
+		{
+			LOG.debug("About to convert all available elements(up to max of " + size + ") into numeric element features matrix");
+			featureMatrix =  new double[size][];
+			int index = 0;
+			Iterator<T> elementsIterator = getSourceElementsIterator();
+			while (elementsIterator.hasNext())
+			{
+				T element = elementsIterator.next();
+				if (index >= size) 
+				{ 
+					break;
+				}
+				processElement(element,index++);
+			}	
+			LOG.debug("Read " + index + " elements from source and converted into numeric element features matrix");
+			ensureDataSize(index);
+		}
+		return featureMatrix;
+	}
+	
+	
 	
 	/**
 	 * @param elements Data elements to add to training set
 	 */
 	@Override
-	public void add(Iterable<T> elements) {
+	public void setTrainingElementsSource(Iterable<T> elements) {
+		this.elements = elements;
 		if (dataIsFeatureScaled)
 		{
 			throw new IllegalStateException("Cannot add any more elements to this training set as it has been feature scaled");
@@ -67,25 +129,47 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 		{
 			throw new IllegalStateException("Cannot add any more elements to this training set as feature statistics have been calculated");
 		}
-		for (T element : elements)
-		{
-			addFeatureValuesForElement(element);
-		}
 	}
+	
+	/**
+	 * @param elements Data elements to add to training set
+	 */
+	@Override
+	public void setTrainingElementsSource(Iterator<T> elements) {
+		this.elementsIterator = elements;
+		if (dataIsFeatureScaled)
+		{
+			throw new IllegalStateException("Cannot add any more elements to this training set as it has been feature scaled");
+		}
+		if (featureStatistics != null)
+		{
+			throw new IllegalStateException("Cannot add any more elements to this training set as feature statistics have been calculated");
+		}
+		
+	}
+	
 
 	@Override
 	public double[][] getFeatureMatrix() {
 		
 		// TODO. Build up feature matrix as elements are added instead of on feature matrix access
-		
-		double[][] featureMatrix = new double[elementFeatures.size()][];
-		int elementIndex = 0;
-		for (double[] elementFeatureArray : elementFeatures)
+		if (featureScaler == null || dataIsFeatureScaled)
 		{
-			featureMatrix[elementIndex++] = (featureScaler == null || dataIsFeatureScaled) ? elementFeatureArray : featureScaler.scaleFeatures(this,elementFeatureArray,true);
+			return getElementFeatures();
 		}
-		if (featureScaler != null) dataIsFeatureScaled = true;
-		return featureMatrix;
+		else
+		{
+
+			for (double[] elementFeatureArray : getElementFeatures())
+			{
+				featureScaler.scaleFeatures(this,elementFeatureArray,true);
+			}
+			LOG.debug("Scaling feature matrix");
+
+			dataIsFeatureScaled = true;
+		}
+		
+		return getElementFeatures();
 	}
 	
 	
@@ -98,14 +182,15 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 		}
 		else
 		{
+			LOG.debug("Calculating feature statistics on " + getElementFeatures().length + " elements");
 			int startIndex = numericFeatureMapper.isHasInterceptFeature() ? 1 : 0;
 	
-			featureStatistics = new Statistics[elementFeatures.get(0).length - startIndex];
-			for (int featureIndex = startIndex;  featureIndex < (elementFeatures.get(0).length); featureIndex++)
+			featureStatistics = new Statistics[getElementFeatures()[0].length - startIndex];
+			for (int featureIndex = startIndex;  featureIndex < (getElementFeatures()[0].length); featureIndex++)
 			{
-				double[] allFeatureValues = new double[elementFeatures.size()];
+				double[] allFeatureValues = new double[getElementFeatures().length];
 				int elementIndex = 0;
-				for (double[] elementFeaturesArray : elementFeatures)
+				for (double[] elementFeaturesArray : getElementFeatures())
 				{
 					allFeatureValues[elementIndex++] = elementFeaturesArray[featureIndex];
 				}
@@ -139,5 +224,7 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 	public FeatureScaler getFeatureScaler() {
 		return featureScaler;
 	}
+
+	
 
 }

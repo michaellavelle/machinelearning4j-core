@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import junit.framework.Assert;
 
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.machinelearning4j.algorithms.AlgorithmFactory;
@@ -47,6 +48,8 @@ public class ClassifierIntegrationTest {
 	private Iterable<Application> previousApplications;
 	private int trainingSetSize;
 	private AlgorithmFactory algorithmFactory;
+
+	private static Logger LOG = Logger.getLogger(ClassifierIntegrationTest.class);
 
 	
 	@Before
@@ -75,6 +78,9 @@ public class ClassifierIntegrationTest {
 	public void testClassificationPrediction()
 	{		
 		// 1. Create and configure the training set
+		
+		LOG.debug("Building training set");
+		
 		LabeledTrainingSet<Application,AdmissionStatus> labeledTrainingSet = 
 				Builders.createLabeledTrainingSetBuilder(Application.class,AdmissionStatus.class,trainingSetSize)
 				.withFeatureDefinition(new ExamScoresFeatureDefinition())
@@ -88,10 +94,10 @@ public class ClassifierIntegrationTest {
 		
 		// 3. Create an admission status label predictor (classifier) for the training set, using this algorithm
 		Classifier<Application,AdmissionStatus,GradientDescentAlgorithmTrainingContext> admissionStatusPredictor = 
-				new BinaryClassifier<Application,AdmissionStatus,GradientDescentAlgorithmTrainingContext>(labeledTrainingSet,logisticRegressionAlgorithm,new AdmissionStatusLabelMapper(),AdmissionStatus.NOT_ACCEPTED,AdmissionStatus.ACCEPTED);
+				new BinaryClassifier<Application,AdmissionStatus,GradientDescentAlgorithmTrainingContext>(logisticRegressionAlgorithm,new AdmissionStatusLabelMapper(),AdmissionStatus.NOT_ACCEPTED,AdmissionStatus.ACCEPTED);
 
 		// 4. Add our previous applications data to the training set
-		labeledTrainingSet.add(previousApplications);
+		labeledTrainingSet.setTrainingElementsSource(previousApplications);
 		
 		// 5. Create a training context for our chosen algorithm, passing in the max number of iterations we will allow the algorithm to run for
 		GradientDescentAlgorithmTrainingContext trainingContext = new GradientDescentAlgorithmTrainingContext(1000);
@@ -119,10 +125,13 @@ public class ClassifierIntegrationTest {
 		// (eg. setting max number of iterations higher), or choose another value of the learning rate.
 		
 		trainingContext.setConvergenceCriteria(new MonotonicDecreasingCostFunctionSnapshotConvergenceCriteria(5,0.0001d));
-	
+
 
 		// 7. Train the admission status predictor to learn from training set
-		admissionStatusPredictor.train(trainingContext);
+		
+		LOG.debug("About to start training");
+		admissionStatusPredictor.train(labeledTrainingSet,trainingContext);
+		LOG.debug("Training Complete");
 
 		// 8. Predict a admission status for a specified set of exam scores
 		ClassificationProbability<AdmissionStatus> predicitedAdmissionStatus = admissionStatusPredictor.predictLabel(new Application(new ExamScores(45,85)));
@@ -131,6 +140,8 @@ public class ClassifierIntegrationTest {
 		Assert.assertNotNull("Predicted admission status classification probability wrapper should not be null",predicitedAdmissionStatus);
 		
 		// Assert that we have predicted the student will be accepted - this matches prediction from Stanford's Machine Learning course programming assignment
+		LOG.debug("Predict");
+
 		Assert.assertEquals(AdmissionStatus.ACCEPTED,predicitedAdmissionStatus.getClassification());
 		
 		// Assert that the confidence level we have in the prediction matches the same

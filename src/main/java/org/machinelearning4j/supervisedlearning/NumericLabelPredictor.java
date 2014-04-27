@@ -25,7 +25,7 @@ import org.machinelearning4j.algorithms.supervisedlearning.NumericHypothesisFunc
  * @author Michael Lavelle
  */
 public class NumericLabelPredictor<T,L,C> implements
-		LabelPredictor<T, Number,C> {
+		LabelPredictor<T, L,Number,C> {
 
 	private LinearRegressionAlgorithm<C> linearRegressionAlgorithm;
 	
@@ -35,19 +35,16 @@ public class NumericLabelPredictor<T,L,C> implements
 	
 	private NumericLabelMapper<L> labelMapper;
 	
+	private TrainingStrategy<C> trainingStrategy;
+
 	
-	public NumericLabelPredictor(
-			LabeledTrainingSet<T, L> labeledTrainingSet,NumericLabelMapper<L> labelMapper,
+	
+	public NumericLabelPredictor(NumericLabelMapper<L> labelMapper,
 			LinearRegressionAlgorithm<C> linearRegressionAlgorithm) {
 		this.linearRegressionAlgorithm = linearRegressionAlgorithm;
-		this.labeledTrainingSet = labeledTrainingSet;
 		this.labelMapper = labelMapper;
+		trainingStrategy = new OfflineTrainingStrategy<C>(linearRegressionAlgorithm);
 		
-		if (!labeledTrainingSet.isFeatureScalingConfigured() && linearRegressionAlgorithm.isFeatureScaledDataRequired())
-		{
-			throw new IllegalStateException("This regression algorithm requires " +
-					"that feature scaling is configured for the training set");
-		}
 		
 	}
 
@@ -56,15 +53,25 @@ public class NumericLabelPredictor<T,L,C> implements
 	 * the data within the labeledTrainingSet
 	 */
 	@Override
-	public void train(C trainingContext) {
+	public void train(LabeledTrainingSet<T, L> labeledTrainingSet,C trainingContext) {
 		
+		this.labeledTrainingSet = labeledTrainingSet;
 		if (!labeledTrainingSet.isDataFeatureScaled() && linearRegressionAlgorithm.isFeatureScaledDataRequired())
 		{
 			throw new IllegalStateException("This regression algorithm requires " +
 					"that the data in the training set has been feature scaled");
 		}	
 		
-		hypothesisFunction = linearRegressionAlgorithm.train(labeledTrainingSet.getFeatureMatrix(), labelMapper.getLabelValues(labeledTrainingSet.getLabels()),trainingContext);
+		NumericHypothesisFunction updatedHypothesisFunction = trainingStrategy.train(labeledTrainingSet, labelMapper, trainingContext);
+		if (updatedHypothesisFunction == null)
+		{
+			throw new RuntimeException("Training has completed without returning a hypothesis function");
+		}
+		else
+		{
+			hypothesisFunction = updatedHypothesisFunction;	
+		}
+		//hypothesisFunction = linearRegressionAlgorithm.train(labeledTrainingSet.getFeatureMatrix(), labelMapper.getLabelValues(labeledTrainingSet.getLabels()),trainingContext);
 	}
 
 	/**
@@ -73,6 +80,12 @@ public class NumericLabelPredictor<T,L,C> implements
 	 */
 	@Override
 	public Number predictLabel(T element) {
+		
+		if (hypothesisFunction == null)
+		{
+			throw new IllegalStateException("No hypothesis function available to use to make predictions - has training been run?");
+		}
+		
 		double[] featureValues = labeledTrainingSet.getFeatureMapper().getFeatureValues(element);
 		if (labeledTrainingSet.isFeatureScalingConfigured() && labeledTrainingSet.isDataFeatureScaled())
 		{
@@ -80,5 +93,7 @@ public class NumericLabelPredictor<T,L,C> implements
 		}
 		return linearRegressionAlgorithm.predictLabel(featureValues, hypothesisFunction);
 	}
+
+	
 
 }

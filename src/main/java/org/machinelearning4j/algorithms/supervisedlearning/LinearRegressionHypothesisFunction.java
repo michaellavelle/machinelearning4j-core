@@ -15,6 +15,8 @@
  */
 package org.machinelearning4j.algorithms.supervisedlearning;
 
+import java.util.Arrays;
+
 /**
  * 
  * @author Michael Lavelle
@@ -42,6 +44,11 @@ public class LinearRegressionHypothesisFunction implements NumericHypothesisFunc
 			y = y +  thetas[index] * numericFeatures[index];
 		}
 		return y;
+	}
+	
+	public String toString()
+	{
+		return Arrays.asList(thetas).toString();
 	}
 
 }

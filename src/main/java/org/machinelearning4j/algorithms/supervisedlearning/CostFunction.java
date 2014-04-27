@@ -16,6 +16,7 @@
 package org.machinelearning4j.algorithms.supervisedlearning;
 
 
+
 /**
  * 
  * @param <X> the type of an input data element which contains the set of independent attributes
@@ -30,4 +31,5 @@ package org.machinelearning4j.algorithms.supervisedlearning;
 public interface CostFunction<X,Y,H extends HypothesisFunction<X,Y>> {
 
 	public double getCost(H h,X[] x,Y[] y);
+
 }

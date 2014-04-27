@@ -82,7 +82,7 @@ public class MonotonicDecreasingCostFunctionSnapshotConvergenceCriteria implemen
 		{
 			double lastCostSnapshot = costFunctionSnapshots.get(costFunctionSnapshots.size() - 1);
 			double penultimateCostSnapshot = costFunctionSnapshots.get(costFunctionSnapshots.size() - 2);
-			double lastCostDecreasePercentage = (1d - lastCostSnapshot/penultimateCostSnapshot) * 100d;
+			double lastCostDecreasePercentage = (1d - lastCostSnapshot/penultimateCostSnapshot) * 100d;			
 			return lastCostDecreasePercentage < declareConvergenceIfCostSnapshotDecreasesByLessThanPercentage;
 		}
 		else

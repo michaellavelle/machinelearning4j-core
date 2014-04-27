@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 package org.machinelearning4j.supervisedlearning;
+
+import org.machinelearning4j.algorithms.supervisedlearning.NumericHypothesisFunction;
 /**
- *  Trainable component which learns to predict labels of type L from elements of type T
+ *  Encapsulates a strategy for training an algorithm to return a NumericHypothesisFunction on training completion.
+ *  
+ *  Given a labeled training set, an implementation will run within a specified training context, and will extract source elements from the training set into numeric values
+ *  and use a LabelMapper to map labels into numerics.
  * 
  * @author Michael Lavelle
  */
-public interface LabelPredictor<T, LT,LP,C> {
+public interface TrainingStrategy<C> {
 
-	/**
-	 * Train the label predictor
-	 */
-	void train(LabeledTrainingSet<T, LT> labeledTrainingSet,C trainingContext);
-
-	/**
-	 * @param The element we wish to predict a label for
-	 * @return  The predicted label
-	 */
-	LP predictLabel(T element);
-
+	public <T,L> NumericHypothesisFunction train(LabeledTrainingSet<T,L> labeledTrainingSet,NumericLabelMapper<L> labelMapper,C trainingContext);
 
 }
+

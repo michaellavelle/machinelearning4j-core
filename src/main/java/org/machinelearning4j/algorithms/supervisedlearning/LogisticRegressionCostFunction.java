@@ -15,6 +15,7 @@
  */
 package org.machinelearning4j.algorithms.supervisedlearning;
 
+
 /**
  * Defines logistic regression cost function
  * 
@@ -43,8 +44,6 @@ public class LogisticRegressionCostFunction implements CostFunction<double[],Dou
 		}
 		cost = (cost + regularizationTerm)/trainingExamples;
 		return cost;
-	}
-
-	
+	}	
 
 }

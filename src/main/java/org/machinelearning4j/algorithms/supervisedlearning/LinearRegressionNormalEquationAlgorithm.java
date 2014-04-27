@@ -15,6 +15,8 @@
  */
 package org.machinelearning4j.algorithms.supervisedlearning;
 
+import org.apache.log4j.Logger;
+
 import Jama.Matrix;
 
 /**
@@ -32,6 +34,9 @@ import Jama.Matrix;
  */
 public class LinearRegressionNormalEquationAlgorithm implements
 		LinearRegressionAlgorithm<LinearRegressionNormalEquationTrainingContext> {
+	
+	private static Logger LOG = Logger.getLogger(LinearRegressionNormalEquationAlgorithm.class);
+
 	
 	public LinearRegressionNormalEquationAlgorithm() {
 	}
@@ -65,6 +70,12 @@ public class LinearRegressionNormalEquationAlgorithm implements
 	@Override
 	public NumericHypothesisFunction train(double[][] featureMatrixValues,
 			double[] labelVectorValues,LinearRegressionNormalEquationTrainingContext context) {
+		
+		if (featureMatrixValues.length == 0)
+		{
+			throw new RuntimeException("No training data provided");
+		}
+		
 		int featureCount = featureMatrixValues[0].length;
 		double[] thetas = new double[featureCount];
 		
@@ -86,6 +97,7 @@ public class LinearRegressionNormalEquationAlgorithm implements
 		{
 			thetas[j] = thetasMatrix.get(j,0);
 		}
+		LOG.debug("Determined Linear Regression Hypothesis Function using Normal Equation");
 		return new LinearRegressionHypothesisFunction(thetas);
 	}
 
