@@ -19,20 +19,27 @@ import java.util.Iterator;
 
 
 /**
- * Stores data in memory for training sets consisting of
- * elements of type T
- *  
- *  
+ *  Configures a training set container for source data
  * 
  * @author Michael Lavelle
  */
 public interface TrainingSet<T> {
 
 	/**
-	 * @param elements Data elements to add to training set
+	 * @param elements Sets the source of the data for algorithms that require data to be accessed and looped
+	 * through multiple times (eg. batch algorithms)
+	 * 
+	 * ie. Data set can be traversed multiple times ( for batch algorithms )  via an Iterable
 	 */
 	void setTrainingElementsSource(Iterable<T> elements);
 
+
+	/**
+	 * @param elements Sets the source of the data for algorithms that enable data be acceessed in a continuous stream
+	 * and do not enable a mechanism to loop through the data multiple times, but only a single time
+	 * 
+	 * ie. Data set can be traversed only once via an Iterator
+	 */
 	void setTrainingElementsSource(Iterator<T> elements);
 	
 	
@@ -40,7 +47,8 @@ public interface TrainingSet<T> {
 
 
 	/**
-	 * @return The numeric features for each element of the training set
+	 * @return Converts the features for each element of the training set to numerics, and returns
+	 * as a double[][] matrix, scaling the features if this has been configured.
 	 */
 	double[][] getFeatureMatrix();
 	
@@ -55,8 +63,6 @@ public interface TrainingSet<T> {
 	boolean isFeatureScalingConfigured();
 	
 	boolean isDataFeatureScaled();
-	
-	
 	
 	public FeatureScaler getFeatureScaler();
 		
