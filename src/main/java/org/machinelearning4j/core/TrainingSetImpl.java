@@ -63,10 +63,10 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 		this.size = size;
 	}
 	
-	public TrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,FeatureScaler featureScaler,int size)
+	public TrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,FeatureScalingStrategy featureScalingStrategy,int size)
 	{
 		this.numericFeatureMapper = numericFeatureMapper;
-		this.featureScaler = featureScaler;
+		this.featureScaler = featureScalingStrategy == null ? null : featureScalingStrategy.getFeatureScaler(this);
 		this.size = size;
 	}
 	
@@ -162,7 +162,7 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 
 			for (double[] elementFeatureArray : getElementFeatures())
 			{
-				featureScaler.scaleFeatures(this,elementFeatureArray,true);
+				featureScaler.scaleFeatures(elementFeatureArray,true);
 			}
 			LOG.debug("Scaling feature matrix");
 

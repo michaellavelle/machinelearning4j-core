@@ -71,7 +71,6 @@ public class NumericLabelPredictor<T,L,C> implements
 		{
 			hypothesisFunction = updatedHypothesisFunction;	
 		}
-		//hypothesisFunction = linearRegressionAlgorithm.train(labeledTrainingSet.getFeatureMatrix(), labelMapper.getLabelValues(labeledTrainingSet.getLabels()),trainingContext);
 	}
 
 	/**
@@ -89,7 +88,7 @@ public class NumericLabelPredictor<T,L,C> implements
 		double[] featureValues = labeledTrainingSet.getFeatureMapper().getFeatureValues(element);
 		if (labeledTrainingSet.isFeatureScalingConfigured() && labeledTrainingSet.isDataFeatureScaled())
 		{
-			featureValues = labeledTrainingSet.getFeatureScaler().scaleFeatures(labeledTrainingSet, featureValues,true);
+			featureValues = labeledTrainingSet.getFeatureScaler().scaleFeatures(featureValues,true);
 		}
 		return linearRegressionAlgorithm.predictLabel(featureValues, hypothesisFunction);
 	}

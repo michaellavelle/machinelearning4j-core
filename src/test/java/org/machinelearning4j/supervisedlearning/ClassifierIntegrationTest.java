@@ -30,7 +30,7 @@ import org.machinelearning4j.algorithms.supervisedlearning.GradientDescentAlgori
 import org.machinelearning4j.algorithms.supervisedlearning.LogisticRegressionAlgorithm;
 import org.machinelearning4j.algorithms.supervisedlearning.MonotonicDecreasingCostFunctionSnapshotConvergenceCriteria;
 import org.machinelearning4j.core.Builders;
-import org.machinelearning4j.core.DefaultFeatureScaler;
+import org.machinelearning4j.core.DefaultFeatureScalingStrategy;
 import org.machinelearning4j.util.CsvFileClassloaderDataSource;
 import org.machinelearning4j.util.TrainingSetDataSource;
 
@@ -84,7 +84,7 @@ public class ClassifierIntegrationTest {
 		LabeledTrainingSet<Application,AdmissionStatus> labeledTrainingSet = 
 				Builders.createLabeledTrainingSetBuilder(Application.class,AdmissionStatus.class,trainingSetSize)
 				.withFeatureDefinition(new ExamScoresFeatureDefinition())
-				.withFeatureScaling(new DefaultFeatureScaler())
+				.withFeatureScaling(new DefaultFeatureScalingStrategy())
 				.withLabel(new AdmissionStatusLabelDefinition())
 				.build();
 					

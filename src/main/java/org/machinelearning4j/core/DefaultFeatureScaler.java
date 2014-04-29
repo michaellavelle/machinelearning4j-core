@@ -16,6 +16,7 @@
 package org.machinelearning4j.core;
 /**
  * Encapsulates logic for scaling training set features
+ * 
  * This default implementation scales each feature by subtracting the mean of the
  * feature for the training set and divides by the standard deviation for that feature.
  * 
@@ -23,16 +24,22 @@ package org.machinelearning4j.core;
  */
 public class DefaultFeatureScaler implements FeatureScaler {
 
+	private FeatureStatisticsSource featureStatisticsSource;
+	
+	public DefaultFeatureScaler(FeatureStatisticsSource featureStatisticsSource)
+	{
+		this.featureStatisticsSource = featureStatisticsSource;
+	}
+	
 	@Override
-	public double[] scaleFeatures(TrainingSet<?> parentTrainingSet,
-			double[] elementFeatureArrayToScale,boolean firstFeatureIsIntercept) {
+	public double[] scaleFeatures(double[] elementFeatureArrayToScale,boolean firstFeatureIsIntercept) {
 		
 		int nonInterceptStatisticsIndex = firstFeatureIsIntercept ? 0 : 1;
 		for (int i = 0 ; i < elementFeatureArrayToScale.length; i++)
 		{	
 			if ((firstFeatureIsIntercept && i != 0) || !firstFeatureIsIntercept)
 			{
-				Statistics statistics = parentTrainingSet.getFeatureStatistics()[nonInterceptStatisticsIndex - 1];
+				Statistics statistics = featureStatisticsSource.getFeatureStatistics()[nonInterceptStatisticsIndex - 1];
 				elementFeatureArrayToScale[i] = scaleFeatureValue(elementFeatureArrayToScale[i],statistics);
 			}
 			nonInterceptStatisticsIndex++;

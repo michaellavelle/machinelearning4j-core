@@ -23,7 +23,7 @@ import java.util.Iterator;
  * 
  * @author Michael Lavelle
  */
-public interface TrainingSet<T> {
+public interface TrainingSet<T> extends FeatureStatisticsSource {
 
 	/**
 	 * @param elements Sets the source of the data for algorithms that require data to be accessed and looped

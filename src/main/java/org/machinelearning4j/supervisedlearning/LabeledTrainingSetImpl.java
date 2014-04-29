@@ -18,7 +18,7 @@ package org.machinelearning4j.supervisedlearning;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.machinelearning4j.core.FeatureScaler;
+import org.machinelearning4j.core.FeatureScalingStrategy;
 import org.machinelearning4j.core.NumericFeatureMapper;
 import org.machinelearning4j.core.TrainingSetImpl;
 
@@ -39,9 +39,9 @@ public class LabeledTrainingSetImpl<T,L>  extends TrainingSetImpl<T> implements 
 		this.labelDefinition = labelDefinition;
 	}
 	
-	public LabeledTrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,FeatureScaler featureScaler,LabelDefinition<T,L> labelDefinition,int size)
+	public LabeledTrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,FeatureScalingStrategy featureScalingStrategy,LabelDefinition<T,L> labelDefinition,int size)
 	{
-		super(numericFeatureMapper,featureScaler,size);
+		super(numericFeatureMapper,featureScalingStrategy,size);
 		this.labels = new ArrayList<L>();
 		this.labelDefinition = labelDefinition;
 	}

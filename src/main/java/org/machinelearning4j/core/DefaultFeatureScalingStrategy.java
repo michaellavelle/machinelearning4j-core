@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 package org.machinelearning4j.core;
+
 /**
- * Encapsulates logic for scaling training set features
+ * Default Strategy for building a feature scaler, given a training set. Builds a DefaultFeatureScaler
+ * which uses feature statistics to scale elements
  * 
  * @author Michael Lavelle
  */
-public interface FeatureScaler {
+public class DefaultFeatureScalingStrategy implements FeatureScalingStrategy {
 
-	double[] scaleFeatures(double[] elementFeatureArrayToScale,boolean firstFeatureIsIntercept);
+	@Override
+	public FeatureScaler getFeatureScaler(TrainingSet<?> trainingSet) {
+		return new DefaultFeatureScaler(trainingSet);
+	}
+
+	
 }

@@ -49,7 +49,7 @@ public class LabeledTrainingSetBuilder<T,L> extends AbstractTrainingSetBuilder<T
 	 */
 	public LabeledTrainingSet<T,L> build()
 	{
-		return new LabeledTrainingSetImpl<T,L>(numericFeatureMapper,featureScaler,labelDefinition,size);
+		return new LabeledTrainingSetImpl<T,L>(numericFeatureMapper,featureScalingStrategy,labelDefinition,size);
 	}
 
 	@Override

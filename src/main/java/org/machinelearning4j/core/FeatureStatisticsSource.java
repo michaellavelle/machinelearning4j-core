@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 package org.machinelearning4j.core;
+
 /**
- * Encapsulates logic for scaling training set features
+ * Allows a source for features statistics to be defined - the statistics themsefves can then 
+ * be calculated in a lazy manner.
  * 
  * @author Michael Lavelle
  */
-public interface FeatureScaler {
+public interface FeatureStatisticsSource {
 
-	double[] scaleFeatures(double[] elementFeatureArrayToScale,boolean firstFeatureIsIntercept);
+	public Statistics[] getFeatureStatistics();
 }

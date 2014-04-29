@@ -102,7 +102,7 @@ public class BinaryClassifier<T,L,C> implements Classifier<T,L,C> {
 		double[] featureValues = labeledTrainingSet.getFeatureMapper().getFeatureValues(element);
 		if (labeledTrainingSet.isFeatureScalingConfigured() && labeledTrainingSet.isDataFeatureScaled())
 		{
-			featureValues = labeledTrainingSet.getFeatureScaler().scaleFeatures(labeledTrainingSet, featureValues,true);
+			featureValues = labeledTrainingSet.getFeatureScaler().scaleFeatures(featureValues,true);
 		}
 		return predictLabel(featureValues);
 		

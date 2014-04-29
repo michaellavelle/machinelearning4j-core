@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 package org.machinelearning4j.core;
+
 /**
- * Encapsulates logic for scaling training set features
+ * Strategy for building a feature scaler, given a training set
  * 
  * @author Michael Lavelle
  */
-public interface FeatureScaler {
+public interface FeatureScalingStrategy {
 
-	double[] scaleFeatures(double[] elementFeatureArrayToScale,boolean firstFeatureIsIntercept);
+	public FeatureScaler getFeatureScaler(TrainingSet<?> trainingSet);
 }
