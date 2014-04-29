@@ -21,10 +21,10 @@ package org.machinelearning4j.algorithms.supervisedlearning;
  * 
  * @author Michael Lavelle
  */
-public class LogisticRegressionCostFunction implements CostFunction<double[],Double,LogisticRegressionHypothesisFunction> {
+public class LogisticRegressionCostFunction implements CostFunction<double[],Double,GradientDescentAlgorithmTrainingContext,LogisticRegressionHypothesisFunction> {
 
 	@Override
-	public double getCost(LogisticRegressionHypothesisFunction h, double[][] features,Double[] labels) {		
+	public double getCost(LogisticRegressionHypothesisFunction h,GradientDescentAlgorithmTrainingContext trainingContext, double[][] features,Double[] labels) {		
 		int trainingExamples = features.length;
 		double cost = 0d;
 		for (int i = 0; i < trainingExamples; i++)
@@ -33,14 +33,14 @@ public class LogisticRegressionCostFunction implements CostFunction<double[],Dou
 			- (1d - labels[i].doubleValue()) * Math.log(1 - h.predict(features[i]));
 		}
 		double regularizationTerm = 0d;
-		if (h.getRegularizationLambda() > 0)
+		if (trainingContext.getRegularizationLambda() > 0)
 		{
 			double sumOfThetaSquares = 0d;
 			for (int j = 0 ; j < h.thetas.length; j++)
 			{
 				sumOfThetaSquares = sumOfThetaSquares+ h.thetas[j] * h.thetas[j];
 			}
-			regularizationTerm =  h.getRegularizationLambda()/2d + sumOfThetaSquares;
+			regularizationTerm =  trainingContext.getRegularizationLambda()/2d + sumOfThetaSquares;
 		}
 		cost = (cost + regularizationTerm)/trainingExamples;
 		return cost;

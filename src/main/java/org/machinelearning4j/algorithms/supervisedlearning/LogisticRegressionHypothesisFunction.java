@@ -29,17 +29,12 @@ package org.machinelearning4j.algorithms.supervisedlearning;
 public class LogisticRegressionHypothesisFunction implements NumericHypothesisFunction {
 
 	protected double[] thetas;
-	protected double regularizationLambda;
 
-	public LogisticRegressionHypothesisFunction(double[] thetas,double regularizationLambda)
+	public LogisticRegressionHypothesisFunction(double[] thetas)
 	{
 		this.thetas = thetas;
-		this.regularizationLambda = regularizationLambda;
 	}
 
-	public double getRegularizationLambda() {
-		return regularizationLambda;
-	}
 
 	@Override
 	public Double predict(double[] x) {

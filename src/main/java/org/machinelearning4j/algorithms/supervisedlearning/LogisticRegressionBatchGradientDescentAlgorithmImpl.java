@@ -32,7 +32,7 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 	public NumericHypothesisFunction train(double[][] featureMatrix,
 			double[] labelVector,
 			GradientDescentAlgorithmTrainingContext trainingContext) {
-		LogisticRegressionHypothesisFunction hypothesisFunction = getInitialHypothesisFunction(featureMatrix[0].length,trainingContext.getRegularizationLambda());
+		LogisticRegressionHypothesisFunction hypothesisFunction = getInitialHypothesisFunction(featureMatrix[0].length);
 		boolean snapshotTakenOfLastIteration = false;
 		
 		if (trainingContext.getLearningRateAlpha() == null)
@@ -95,7 +95,7 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 					- trainingContext.getLearningRateAlpha() * gradients[j];
 		}
 
-		return new LogisticRegressionHypothesisFunction(newThetas,hypothesisFunction.regularizationLambda);
+		return new LogisticRegressionHypothesisFunction(newThetas);
 	}
 
 
@@ -130,7 +130,7 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 				labelsArray[i] = new Double(labelVector[i]);
 			}
 			trainingContext.addCostFunctionSnapshotValue(getCostFunction()
-					.getCost(hypothesisFunction, featureMatrix, labelsArray));
+					.getCost(hypothesisFunction, trainingContext,featureMatrix, labelsArray));
 			return true;
 		}
 		return false;
@@ -139,9 +139,9 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 	
 
 	protected LogisticRegressionHypothesisFunction getInitialHypothesisFunction(
-			int thetaCount,double regularizationLambda) {
+			int thetaCount) {
 		double[] initialThetas = new double[thetaCount];
-		return new LogisticRegressionHypothesisFunction(initialThetas,regularizationLambda);
+		return new LogisticRegressionHypothesisFunction(initialThetas);
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 		return true;
 	}
 
-	public CostFunction<double[], Double, LogisticRegressionHypothesisFunction> getCostFunction() {
+	public CostFunction<double[], Double,GradientDescentAlgorithmTrainingContext, LogisticRegressionHypothesisFunction> getCostFunction() {
 		return new LogisticRegressionCostFunction();
 	}
 

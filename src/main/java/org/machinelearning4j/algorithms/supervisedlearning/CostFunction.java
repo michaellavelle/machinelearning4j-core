@@ -26,10 +26,10 @@ package org.machinelearning4j.algorithms.supervisedlearning;
  * @author Michael Lavelle
  * 
  * A CostFunction<X,Y,H> calculates a cost associated with training prediction errors using a given HypothesisFunction mapping elements of 
- * type X to type Y.
+ * type X to type Y, and training context of type C
  */
-public interface CostFunction<X,Y,H extends HypothesisFunction<X,Y>> {
+public interface CostFunction<X,Y,C,H extends HypothesisFunction<X,Y>> {
 
-	public double getCost(H h,X[] x,Y[] y);
+	public double getCost(H h,C trainingContext,X[] x,Y[] y);
 
 }
