@@ -64,8 +64,16 @@ public class LogisticRegressionBatchGradientDescentAlgorithmImpl implements
 			return hypothesisFunction;
 		} else {
 			if (trainingContext.getConvergenceCriteria() != null) {
-				throw new RuntimeException(
+				if (trainingContext.getConvergenceCriteria().isPrerequisiteConditionViolated(trainingContext))
+				{
+					throw new RuntimeException(
+					"Training has stopped running because prerequesite condition has been violated");
+				}
+				else
+				{
+					throw new RuntimeException(
 						"Training has stopped running but has not satified convergence criteria");
+				}
 			} else {
 				throw new RuntimeException(
 						"Training has stopped running but cannot be deemed to have converged as no convergence criteria have been specified on the training context");

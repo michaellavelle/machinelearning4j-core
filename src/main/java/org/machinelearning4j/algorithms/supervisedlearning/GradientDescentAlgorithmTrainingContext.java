@@ -89,7 +89,7 @@ public class GradientDescentAlgorithmTrainingContext {
 
 
 	public boolean isTrainingSuccessful() {
-		return convergenceCriteria != null && currentIteration > 0 && convergenceCriteria.isConvergenceCompleteConditionSatisfied(this);
+		return convergenceCriteria != null && currentIteration > 0 && convergenceCriteria.isConvergenceCompleteConditionSatisfied(this) && !convergenceCriteria.isPrerequisiteConditionViolated(this);
 	}
 
 	 public void setConvergenceCriteria(ConvergenceCriteria<GradientDescentAlgorithmTrainingContext> convergenceCriteria) {
