@@ -13,14 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.machinelearning4j.core;
+package org.machinelearning4j.pipeline;
+
+import java.util.Iterator;
 
 /**
- * Strategy for building a feature scaler, given a training set
+ * Decorating Iterator for data pipelines
  * 
  * @author Michael Lavelle
  */
-public interface FeatureScalingStrategy {
+public abstract class DataPipe<S,T> implements Iterator<T> {
 
-	public FeatureScaler getFeatureScaler(FeatureStatisticsSource trainingSet);
+	protected Long maxElementsToProcess;
+	protected Iterator<S> sourceIterator;
+	
+	public DataPipe(Iterator<S> sourceIterator)
+	{
+		this.sourceIterator = sourceIterator;
+	}
+	
+	public DataPipe(Iterator<S> sourceIterator,Long maxElementsToProcess)
+	{
+		this.sourceIterator = sourceIterator;
+		this.maxElementsToProcess= maxElementsToProcess;
+	}
+	
+	@Override
+	public void remove() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

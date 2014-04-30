@@ -13,14 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.machinelearning4j.core;
+package org.machinelearning4j.pipeline;
+
+import java.util.Iterator;
 
 /**
- * Strategy for building a feature scaler, given a training set
+ * Decorating Iterator, mapping source elements of type S to type T
  * 
  * @author Michael Lavelle
  */
-public interface FeatureScalingStrategy {
+public class MappingDataPipe<S,T> extends DataPipe<S, T> {
 
-	public FeatureScaler getFeatureScaler(FeatureStatisticsSource trainingSet);
+	private DataMapper<S,T> dataMapper;
+	
+	public MappingDataPipe(Iterator<S> sourceIterator,DataMapper<S,T> dataMapper) {
+		super(sourceIterator);
+		this.dataMapper = dataMapper;
+	}
+
+	@Override
+	public boolean hasNext() {
+		return sourceIterator.hasNext();
+	}
+
+	@Override
+	public T next() {
+		return dataMapper.getMappedData(sourceIterator.next());
+	}
+
 }

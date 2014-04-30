@@ -24,8 +24,8 @@ package org.machinelearning4j.core;
 public class DefaultFeatureScalingStrategy implements FeatureScalingStrategy {
 
 	@Override
-	public FeatureScaler getFeatureScaler(TrainingSet<?> trainingSet) {
-		return new DefaultFeatureScaler(trainingSet);
+	public FeatureScaler getFeatureScaler(FeatureStatisticsSource featureStatisticsSource) {
+		return new DefaultFeatureScaler(featureStatisticsSource);
 	}
 
 	

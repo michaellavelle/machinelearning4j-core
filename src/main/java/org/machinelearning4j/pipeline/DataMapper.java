@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.machinelearning4j.core;
+package org.machinelearning4j.pipeline;
 
-/**
- * Strategy for building a feature scaler, given a training set
- * 
- * @author Michael Lavelle
- */
-public interface FeatureScalingStrategy {
+public interface DataMapper<S,T> {
 
-	public FeatureScaler getFeatureScaler(FeatureStatisticsSource trainingSet);
+	public T getMappedData(S source);
 }
