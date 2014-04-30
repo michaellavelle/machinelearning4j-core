@@ -45,7 +45,7 @@ public class CachingNumericLabeledDataPipe<S> extends DataPipe<NumericLabeledDat
 	
 	protected void cacheData(int elementsToCache)
 	{
-		while (sourceIterator.hasNext())
+		while (sourceIterator.hasNext() && cacheWriteIndex < elementsToCache)
 		{
 			NumericLabeledData labeledDataFeatures = sourceIterator.next();
 			if (cacheWriteIndex < elementsToCache)
