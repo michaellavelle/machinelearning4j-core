@@ -23,7 +23,7 @@ import java.util.Iterator;
  * 
  * @author Michael Lavelle
  */
-public interface TrainingSet<T> extends FeatureStatisticsSource {
+public interface TrainingSet<T>  {
 
 	/**
 	 * @param elements Sets the source of the data for algorithms that require data to be accessed and looped
@@ -45,12 +45,8 @@ public interface TrainingSet<T> extends FeatureStatisticsSource {
 	
 	public Iterator<T> getSourceElementsIterator();
 
-
-	/**
-	 * @return Converts the features for each element of the training set to numerics, and returns
-	 * as a double[][] matrix, scaling the features if this has been configured.
-	 */
-	double[][] getFeatureMatrix();
+	double[][] getBenchmarkFeatureMatrix();
+	void setBenchmarkFeatureMatrix(double[][] benchmarkFeatures);
 	
 	public int getSize();
 
@@ -64,10 +60,13 @@ public interface TrainingSet<T> extends FeatureStatisticsSource {
 	
 	boolean isDataFeatureScaled();
 	
-	public FeatureScaler getFeatureScaler();
-		
-	public Statistics[] getFeatureStatistics();
+	void setDataIsFeatureScaled(boolean featureScaled);
+
 	
+	public FeatureScalingStrategy getFeatureScalingStrategy();
+	public FeatureScaler getFeatureScaler();
+	public void setFeatureScaler(FeatureScaler featureScaler);
+			
 	
 
 }

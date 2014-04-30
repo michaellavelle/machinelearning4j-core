@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.machinelearning4j.supervisedlearning;
+
+
 /**
  * Classifying LabelPredictor - predicts a classification of type L from elements of type T and returns an associated
  * prediction probability

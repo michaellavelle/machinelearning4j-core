@@ -29,7 +29,8 @@ import org.machinelearning4j.core.TrainingSet;
  */
 public interface LabeledTrainingSet<T, L> extends TrainingSet<T>{
 
-	List<L> getLabels();
+	List<Double> getBenchmarkLabels();
+	void setBenchmarkLabels(List<Double> labels);
 	public LabelDefinition<T,L> getLabelDefinition();
 
 }

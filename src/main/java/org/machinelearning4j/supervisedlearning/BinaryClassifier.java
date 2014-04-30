@@ -16,6 +16,7 @@
 package org.machinelearning4j.supervisedlearning;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.machinelearning4j.algorithms.supervisedlearning.LogisticRegressionAlgorithm;
 import org.machinelearning4j.algorithms.supervisedlearning.NumericHypothesisFunction;
@@ -116,12 +117,17 @@ public class BinaryClassifier<T,L,C> implements Classifier<T,L,C> {
 	public double getTrainingSetPredictionAccuracyPercentage()
 	{
 		double predictedCorrect = 0;
-		double[] actualLabelValues = labelMapper.getLabelValues(labeledTrainingSet.getLabels());
 		int trainingExampleIndex = 0;
-		for (double[] elementFeatures :labeledTrainingSet.getFeatureMatrix())
+		double[][] benchmarkFeatureMatrix = labeledTrainingSet.getBenchmarkFeatureMatrix();
+		List<Double> benchmarkLabels = labeledTrainingSet.getBenchmarkLabels();
+		if (benchmarkFeatureMatrix == null || benchmarkLabels == null ||  benchmarkFeatureMatrix.length == 0 || benchmarkLabels.size() == 0 || benchmarkFeatureMatrix.length != benchmarkLabels.size() )
+		{
+			throw new IllegalStateException("Benchmark data has not been correctly set on the training set");
+		}
+		for (double[] elementFeatures :benchmarkFeatureMatrix)
 		{
 			ClassificationProbability<L> prediction = predictLabel(elementFeatures);
-			double actualLabelValue = actualLabelValues[trainingExampleIndex++];
+			double actualLabelValue = benchmarkLabels.get(trainingExampleIndex++);
 			@SuppressWarnings("unchecked")
 			double predictedLabelValue = labelMapper.getLabelValues(Arrays.asList(prediction.getClassification()))[0];
 			if (predictedLabelValue == actualLabelValue)
@@ -129,7 +135,7 @@ public class BinaryClassifier<T,L,C> implements Classifier<T,L,C> {
 				predictedCorrect++;
 			}
 		}
-		return 100 * predictedCorrect/labeledTrainingSet.getFeatureMatrix().length;
+		return 100 * predictedCorrect/benchmarkFeatureMatrix.length;
 	}
 
 }

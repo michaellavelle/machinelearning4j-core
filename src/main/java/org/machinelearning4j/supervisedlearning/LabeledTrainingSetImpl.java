@@ -30,6 +30,15 @@ import org.machinelearning4j.core.TrainingSetImpl;
 public class LabeledTrainingSetImpl<T,L>  extends TrainingSetImpl<T> implements LabeledTrainingSet<T,L> {
 
 	private List<L> labels;
+	private List<Double> benchmarkLabels;
+	public List<Double> getBenchmarkLabels() {
+		return benchmarkLabels;
+	}
+
+	public void setBenchmarkLabels(List<Double> benchmarkLabels) {
+		this.benchmarkLabels = benchmarkLabels;
+	}
+
 	private LabelDefinition<T,L> labelDefinition;
 	
 	public LabeledTrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,LabelDefinition<T,L> labelDefinition,int size)
@@ -45,32 +54,8 @@ public class LabeledTrainingSetImpl<T,L>  extends TrainingSetImpl<T> implements 
 		this.labels = new ArrayList<L>();
 		this.labelDefinition = labelDefinition;
 	}
+
 	
-	protected void addLabelForElement(T element)
-	{
-		labels.add(labelDefinition.getLabel(element));
-	}
-	
-	
-
-	@Override
-	protected void processElement(T element, int index) {
-		super.processElement(element, index);
-		addLabelForElement(element);
-
-	}
-
-	@Override
-	protected void ensureDataSize(int length) {
-		labels = labels.subList(0, length );
-		super.ensureDataSize(length);
-	}
-
-	@Override
-	public List<L> getLabels() {
-		return labels;
-	}
-
 	@Override
 	public LabelDefinition<T, L> getLabelDefinition() {
 		return labelDefinition;

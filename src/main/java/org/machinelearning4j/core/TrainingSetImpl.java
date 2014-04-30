@@ -29,12 +29,23 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 	private NumericFeatureMapper<T> numericFeatureMapper;
 	protected int size;
 	protected boolean dataIsFeatureScaled;
-	protected FeatureScaler featureScaler;
+	protected FeatureScalingStrategy featureScalingStrategy;
 	protected Statistics[] featureStatistics;
 	protected Iterable<T> elements;
 	protected double[][] featureMatrix;
 	protected Iterator<T> elementsIterator;
+	protected FeatureScaler featureScaler;
+	private double[][] benchmarkFeatureMatrix;
 	
+	
+	public double[][] getBenchmarkFeatureMatrix() {
+		return benchmarkFeatureMatrix;
+	}
+
+	public void setBenchmarkFeatureMatrix(double[][] benchmarkFeatureMatrix) {
+		this.benchmarkFeatureMatrix = benchmarkFeatureMatrix;
+	}
+
 	private static Logger LOG = Logger.getLogger(TrainingSetImpl.class);
 
 	
@@ -66,55 +77,11 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 	public TrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,FeatureScalingStrategy featureScalingStrategy,int size)
 	{
 		this.numericFeatureMapper = numericFeatureMapper;
-		this.featureScaler = featureScalingStrategy == null ? null : featureScalingStrategy.getFeatureScaler(this);
+		this.featureScalingStrategy = featureScalingStrategy;
 		this.size = size;
 	}
 	
-	protected void processElement(T element,int index)
-	{
-		featureMatrix[index] = numericFeatureMapper.getFeatureValues(element);
-	}
-	
-	protected void ensureDataSize(int length)
-	{
-		if (length < size)
-		{
-		LOG.debug("Resizing to:" + length);
-		double[][] resizedFeatureMatrix = new double[length][];
-		for (int i = 0; i < length; i++)
-		{
-			resizedFeatureMatrix[i] = featureMatrix[i];
-		}
-		featureMatrix = null;
-		featureMatrix = resizedFeatureMatrix;
-		}
-	}
-	
-	private double[][] getElementFeatures()
-	{
-		if (featureMatrix == null)
-		{
-			LOG.debug("About to convert all available elements(up to max of " + size + ") into numeric element features matrix");
-			featureMatrix =  new double[size][];
-			int index = 0;
-			Iterator<T> elementsIterator = getSourceElementsIterator();
-			while (elementsIterator.hasNext())
-			{
-				T element = elementsIterator.next();
-				if (index >= size) 
-				{ 
-					break;
-				}
-				processElement(element,index++);
-			}	
-			LOG.debug("Read " + index + " elements from source and converted into numeric element features matrix");
-			ensureDataSize(index);
-		}
-		return featureMatrix;
-	}
-	
-	
-	
+
 	/**
 	 * @param elements Data elements to add to training set
 	 */
@@ -148,59 +115,6 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 		
 	}
 	
-
-	@Override
-	public double[][] getFeatureMatrix() {
-		
-		// TODO. Build up feature matrix as elements are added instead of on feature matrix access
-		if (featureScaler == null || dataIsFeatureScaled)
-		{
-			return getElementFeatures();
-		}
-		else
-		{
-
-			for (double[] elementFeatureArray : getElementFeatures())
-			{
-				featureScaler.scaleFeatures(elementFeatureArray,true);
-			}
-			LOG.debug("Scaling feature matrix");
-
-			dataIsFeatureScaled = true;
-		}
-		
-		return getElementFeatures();
-	}
-	
-	
-	public Statistics[] getFeatureStatistics()
-	{
-		// Lazy evaulate feature statistics
-		if (featureStatistics != null)
-		{
-			return featureStatistics;
-		}
-		else
-		{
-			LOG.debug("Calculating feature statistics on " + getElementFeatures().length + " elements");
-			int startIndex = numericFeatureMapper.isHasInterceptFeature() ? 1 : 0;
-	
-			featureStatistics = new Statistics[getElementFeatures()[0].length - startIndex];
-			for (int featureIndex = startIndex;  featureIndex < (getElementFeatures()[0].length); featureIndex++)
-			{
-				double[] allFeatureValues = new double[getElementFeatures().length];
-				int elementIndex = 0;
-				for (double[] elementFeaturesArray : getElementFeatures())
-				{
-					allFeatureValues[elementIndex++] = elementFeaturesArray[featureIndex];
-				}
-				int featInd = numericFeatureMapper.isHasInterceptFeature()  ? (featureIndex - 1) : featureIndex;
-				featureStatistics[featInd] = new Statistics(allFeatureValues);
-			}
-			return featureStatistics;
-		}
- 	}
-
 	@Override
 	public NumericFeatureMapper<T> getFeatureMapper() {
 		return numericFeatureMapper;
@@ -210,7 +124,7 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 
 	@Override
 	public boolean isFeatureScalingConfigured() {
-		return featureScaler != null;
+		return featureScalingStrategy != null;
 	}
 
 
@@ -221,9 +135,29 @@ public class TrainingSetImpl<T> implements TrainingSet<T> {
 	}
 
 	@Override
+	public FeatureScalingStrategy getFeatureScalingStrategy() {
+		return featureScalingStrategy;
+	}
+	
+	@Override
 	public FeatureScaler getFeatureScaler() {
 		return featureScaler;
 	}
+	
+	
+	public boolean isDataIsFeatureScaled() {
+		return dataIsFeatureScaled;
+	}
+
+	public void setDataIsFeatureScaled(boolean dataIsFeatureScaled) {
+		this.dataIsFeatureScaled = dataIsFeatureScaled;
+	}
+
+	@Override
+	public void setFeatureScaler(FeatureScaler featureScaler) {
+		this.featureScaler = featureScaler;
+	}
+
 
 	
 
