@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.machinelearning4j.algorithms.supervisedlearning.LogisticRegressionAlgorithm;
 import org.machinelearning4j.algorithms.supervisedlearning.NumericHypothesisFunction;
+import org.machinelearning4j.algorithms.supervisedlearning.RegressionAlgorithm;
 /**
  * Classifying LabelPredictor - predicts a classification of type L (where there are exactly
  * two exclusive values the classification can take ) with an associated
@@ -30,25 +31,25 @@ import org.machinelearning4j.algorithms.supervisedlearning.NumericHypothesisFunc
 public class BinaryClassifier<T,L,C> implements Classifier<T,L,C> {
 
 	private LabeledTrainingSet<T, L> labeledTrainingSet;
-	private LogisticRegressionAlgorithm<C> logisticRegressionAlgorithm;
 	private NumericHypothesisFunction hypothesisFunction;
 	private double decisionBoundaryProbabilityThreshold = 0.5d;
 	private L negativeClass;
 	private L positiveClass;
 	private NumericLabelMapper<L> labelMapper;
 	
-	private TrainingStrategy<C> trainingStrategy;
+	private TrainingStrategy<C,? extends RegressionAlgorithm<C>> trainingStrategy;
 
 	
 	public BinaryClassifier(
-			LogisticRegressionAlgorithm<C> logisticRegressionAlgorithm,NumericLabelMapper<L> labelMapper,L negativeClass,L positiveClass) {
+			TrainingStrategy<C,? extends LogisticRegressionAlgorithm<C>> trainingStrategy,NumericLabelMapper<L> labelMapper,L negativeClass,L positiveClass) {
 			
-			this.logisticRegressionAlgorithm = logisticRegressionAlgorithm;
 			this.labelMapper = labelMapper;
 			this.negativeClass = negativeClass;
 			this.positiveClass = positiveClass;
-			this.trainingStrategy = new OfflineTrainingStrategy<C>(logisticRegressionAlgorithm);
+			this.trainingStrategy = trainingStrategy;
 	}
+	
+	
 
 	@Override
 	public void train(LabeledTrainingSet<T, L> labeledTrainingSet,C trainingContext) {
@@ -79,7 +80,7 @@ public class BinaryClassifier<T,L,C> implements Classifier<T,L,C> {
 		{
 			throw new IllegalStateException("No hypothesis function available to use to make predictions - has training been run?");
 		}
-		Double positiveClassProbability = logisticRegressionAlgorithm.predictLabel(featureValues , hypothesisFunction);
+		Double positiveClassProbability = trainingStrategy.getAlgorithm().predictLabel(featureValues , hypothesisFunction);
 		if (positiveClassProbability == null)
 		{
 			return null;

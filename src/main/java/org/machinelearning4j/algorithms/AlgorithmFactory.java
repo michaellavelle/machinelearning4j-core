@@ -19,6 +19,7 @@ import org.machinelearning4j.algorithms.supervisedlearning.GradientDescentAlgori
 import org.machinelearning4j.algorithms.supervisedlearning.LinearRegressionAlgorithm;
 import org.machinelearning4j.algorithms.supervisedlearning.LinearRegressionNormalEquationTrainingContext;
 import org.machinelearning4j.algorithms.supervisedlearning.LogisticRegressionAlgorithm;
+import org.machinelearning4j.algorithms.supervisedlearning.OnlineLogisticRegressionAlgorithm;
 import org.machinelearning4j.algorithms.unsupervisedlearning.KMeansClusteringAlgorithm;
 
 
@@ -44,9 +45,15 @@ public interface AlgorithmFactory {
 	KMeansClusteringAlgorithm createKMeansClusteringAlgorithm(int numberOfClusters);
 
 	/**
-	 * Create a LogisticRegressionAlgorithm
+	 * Create a LogisticRegressionAlgorithm using batch gradient descent
 	 * 
 	 */
-	<C extends GradientDescentAlgorithmTrainingContext> LogisticRegressionAlgorithm<C> createLogisticRegressionAlgorithm();
+	<C extends GradientDescentAlgorithmTrainingContext> LogisticRegressionAlgorithm<C> createLogisticRegressionBatchGradientDescentAlgorithm();
+
+	/**
+	 * Create an online LogisticRegressionAlgorithm using stochastic gradient descent
+	 * 
+	 */
+	<C extends GradientDescentAlgorithmTrainingContext> OnlineLogisticRegressionAlgorithm<C> createLogisticRegressionStochasticGradientDescentAlgorithm();
 
 }

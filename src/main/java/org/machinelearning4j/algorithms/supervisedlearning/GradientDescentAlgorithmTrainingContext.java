@@ -20,62 +20,91 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.machinelearning4j.algorithms.ConvergenceCriteria;
+import org.machinelearning4j.supervisedlearning.LabeledTrainingSet;
 
 /**
- *  Training context for a gradient descent regression algorithm
+ * Training context for a gradient descent regression algorithm
  * 
  * @author Michael Lavelle
  */
 public class GradientDescentAlgorithmTrainingContext {
 
-	static Logger LOG = Logger.getLogger(GradientDescentAlgorithmTrainingContext.class);
-	
+	static Logger LOG = Logger
+			.getLogger(GradientDescentAlgorithmTrainingContext.class);
+
 	private double regularizationLambda;
-	
+
 	private Double learningRateAlpha;
-	
+
 	private Integer costFunctionSnapshotIntervalInIterations;
 
 	private boolean trainingTerminated;
-	
+
 	private long maxIterations;
-	
+
 	private long currentIteration;
-	
+
+	private LabeledTrainingSet<?, ?> labeledTrainingSet;
+
+	private double[][] costFunctionFeaturesDataSet;
+	private List<Double> costFunctionLabelsDataSet;
+
+	public LabeledTrainingSet<?, ?> getTrainingSet() {
+		return labeledTrainingSet;
+	}
+
+	public double[][] getCostFunctionFeaturesDataSet() {
+		return costFunctionFeaturesDataSet;
+	}
+
+	public void setCostFunctionFeaturesDataSet(
+			double[][] costFunctionFeaturesDataSet) {
+		this.costFunctionFeaturesDataSet = costFunctionFeaturesDataSet;
+	}
+
+	public List<Double> getCostFunctionLabelsDataSet() {
+		return costFunctionLabelsDataSet;
+	}
+
+	public void setCostFunctionLabelsDataSet(
+			List<Double> costFunctionLabelsDataSet) {
+		this.costFunctionLabelsDataSet = costFunctionLabelsDataSet;
+	}
+
 	public long getCurrentIteration() {
 		return currentIteration;
 	}
-	
+
 	private List<Double> costFunctionSnapshotHistory;
-	
-	
-	public void addCostFunctionSnapshotValue(double costFunctionValue)
-	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Iteration: " + currentIteration + " : Cost: " +  costFunctionValue);
+
+	public void addCostFunctionSnapshotValue(double costFunctionValue) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Iteration: " + currentIteration + " : Cost: "
+					+ costFunctionValue);
 		}
 		costFunctionSnapshotHistory.add(costFunctionValue);
 	}
-	
-	
+
 	private ConvergenceCriteria<GradientDescentAlgorithmTrainingContext> convergenceCriteria;
-	
-	public GradientDescentAlgorithmTrainingContext(long maxIterations)
-	{
+
+	public GradientDescentAlgorithmTrainingContext(
+			LabeledTrainingSet<?, ?> labeledTrainingSet, long maxIterations) {
 		this.maxIterations = maxIterations;
 		this.costFunctionSnapshotHistory = new ArrayList<Double>();
+		this.labeledTrainingSet = labeledTrainingSet;
 	}
-	
-	public void incrementIterationNumber()
-	{
+
+	public void incrementIterationNumber() {
 		currentIteration++;
 	}
 
 	public boolean isTrainingRunning() {
-		return !isTrainingTerminated() && (convergenceCriteria == null || !convergenceCriteria.isPrerequisiteConditionViolated(this)) && !isIterationLimitReached();
+		return !isTrainingTerminated()
+				&& (convergenceCriteria == null || !convergenceCriteria
+						.isPrerequisiteConditionViolated(this))
+				&& !isIterationLimitReached();
 	}
-	
+
 	private boolean isIterationLimitReached() {
 		return currentIteration >= maxIterations;
 	}
@@ -83,23 +112,27 @@ public class GradientDescentAlgorithmTrainingContext {
 	public boolean isTrainingTerminated() {
 		return trainingTerminated;
 	}
+
 	public void setTrainingTerminated(boolean trainingTerminated) {
 		this.trainingTerminated = trainingTerminated;
 	}
 
-
 	public boolean isTrainingSuccessful() {
-		return convergenceCriteria != null && currentIteration > 0 && convergenceCriteria.isConvergenceCompleteConditionSatisfied(this) && !convergenceCriteria.isPrerequisiteConditionViolated(this);
+		return convergenceCriteria != null
+				&& currentIteration > 0
+				&& convergenceCriteria
+						.isConvergenceCompleteConditionSatisfied(this)
+				&& !convergenceCriteria.isPrerequisiteConditionViolated(this);
 	}
 
-	 public void setConvergenceCriteria(ConvergenceCriteria<GradientDescentAlgorithmTrainingContext> convergenceCriteria) {
-		 this.convergenceCriteria = convergenceCriteria;
+	public void setConvergenceCriteria(
+			ConvergenceCriteria<GradientDescentAlgorithmTrainingContext> convergenceCriteria) {
+		this.convergenceCriteria = convergenceCriteria;
 	}
 
 	public ConvergenceCriteria<GradientDescentAlgorithmTrainingContext> getConvergenceCriteria() {
 		return convergenceCriteria;
 	}
-
 
 	public double getRegularizationLambda() {
 		return regularizationLambda;
@@ -116,7 +149,6 @@ public class GradientDescentAlgorithmTrainingContext {
 	public void setLearningRateAlpha(Double learningRateAlpha) {
 		this.learningRateAlpha = learningRateAlpha;
 	}
-	
 
 	public void setCostFunctionSnapshotIntervalInIterations(
 			int costFunctionSnapshotItervalInIterations) {
@@ -130,7 +162,7 @@ public class GradientDescentAlgorithmTrainingContext {
 	public List<Double> getCostFunctionSnapshotHistory() {
 		return costFunctionSnapshotHistory;
 	}
-	
+
 	public long getMaxIterations() {
 		return maxIterations;
 	}

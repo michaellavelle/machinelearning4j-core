@@ -15,7 +15,6 @@
  */
 package org.machinelearning4j.supervisedlearning;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.machinelearning4j.core.FeatureScalingStrategy;
@@ -29,7 +28,6 @@ import org.machinelearning4j.core.TrainingSetImpl;
  */
 public class LabeledTrainingSetImpl<T,L>  extends TrainingSetImpl<T> implements LabeledTrainingSet<T,L> {
 
-	private List<L> labels;
 	private List<Double> benchmarkLabels;
 	public List<Double> getBenchmarkLabels() {
 		return benchmarkLabels;
@@ -44,14 +42,12 @@ public class LabeledTrainingSetImpl<T,L>  extends TrainingSetImpl<T> implements 
 	public LabeledTrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,LabelDefinition<T,L> labelDefinition,int size)
 	{
 		super(numericFeatureMapper,size);
-		this.labels = new ArrayList<L>();
 		this.labelDefinition = labelDefinition;
 	}
 	
 	public LabeledTrainingSetImpl(NumericFeatureMapper<T> numericFeatureMapper,FeatureScalingStrategy featureScalingStrategy,LabelDefinition<T,L> labelDefinition,int size)
 	{
 		super(numericFeatureMapper,featureScalingStrategy,size);
-		this.labels = new ArrayList<L>();
 		this.labelDefinition = labelDefinition;
 	}
 

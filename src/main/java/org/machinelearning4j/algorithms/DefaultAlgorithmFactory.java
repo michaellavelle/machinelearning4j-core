@@ -21,6 +21,8 @@ import org.machinelearning4j.algorithms.supervisedlearning.LinearRegressionNorma
 import org.machinelearning4j.algorithms.supervisedlearning.LinearRegressionNormalEquationTrainingContext;
 import org.machinelearning4j.algorithms.supervisedlearning.LogisticRegressionAlgorithm;
 import org.machinelearning4j.algorithms.supervisedlearning.LogisticRegressionBatchGradientDescentAlgorithmImpl;
+import org.machinelearning4j.algorithms.supervisedlearning.LogisticRegressionStochasticGradientDescentAlgorithmImpl;
+import org.machinelearning4j.algorithms.supervisedlearning.OnlineLogisticRegressionAlgorithm;
 import org.machinelearning4j.algorithms.unsupervisedlearning.KMeansClusteringAlgorithm;
 
 
@@ -39,9 +41,22 @@ public class DefaultAlgorithmFactory implements AlgorithmFactory {
 		return new KMeansClusteringAlgorithm(numberOfClusters);
 	}
 
+	/**
+	 * Create an online logistic regression algorithm, using batch gradient descent
+	 * 
+	 */
 	@Override
-	public LogisticRegressionAlgorithm<GradientDescentAlgorithmTrainingContext> createLogisticRegressionAlgorithm() {
+	public LogisticRegressionAlgorithm<GradientDescentAlgorithmTrainingContext> createLogisticRegressionBatchGradientDescentAlgorithm() {
 		return new LogisticRegressionBatchGradientDescentAlgorithmImpl();
+	}
+	
+	/**
+	 * Create an online logistic regression algorithm, using stochastic gradient descent
+	 * 
+	 */
+	@Override
+	public OnlineLogisticRegressionAlgorithm<GradientDescentAlgorithmTrainingContext> createLogisticRegressionStochasticGradientDescentAlgorithm() {
+		return new LogisticRegressionStochasticGradientDescentAlgorithmImpl();
 	}
 
 	/**

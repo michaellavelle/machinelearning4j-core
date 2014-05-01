@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.machinelearning4j.supervisedlearning;
+package org.machinelearning4j.algorithms.supervisedlearning;
 /**
- *  Trainable component which learns to predict labels of type LP from elements of type T with labels of type LT
+ * Identifies a logistic regression algorithm as being able to be run with online (non-in memory) data
  * 
  * @author Michael Lavelle
+ *
+ * @param <C> the context for the algorithm
  */
-public interface LabelPredictor<T, LT,LP,C> {
-
-	/**
-	 * Train the label predictor
-	 */
-	void train(LabeledTrainingSet<T, LT> labeledTrainingSet,C trainingContext);
-
-	/**
-	 * @param The element we wish to predict a label for
-	 * @return  The predicted label
-	 */
-	LP predictLabel(T element);
-
+public interface OnlineLogisticRegressionAlgorithm<C> extends
+		LogisticRegressionAlgorithm<C>, OnlineRegressionAlgorithm<C> {
 
 }

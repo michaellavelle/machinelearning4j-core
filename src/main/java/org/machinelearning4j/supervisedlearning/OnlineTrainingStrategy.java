@@ -16,10 +16,11 @@
 package org.machinelearning4j.supervisedlearning;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.machinelearning4j.algorithms.supervisedlearning.NumericHypothesisFunction;
-import org.machinelearning4j.algorithms.supervisedlearning.RegressionAlgorithm;
+import org.machinelearning4j.algorithms.supervisedlearning.OnlineRegressionAlgorithm;
 import org.machinelearning4j.core.FeatureScaler;
 import org.machinelearning4j.core.FeatureStatisticsSource;
 import org.machinelearning4j.core.InMemoryFeatureStatisticsSource;
@@ -31,21 +32,21 @@ import org.machinelearning4j.pipeline.FeatureScalingLabeledDataMapper;
 import org.machinelearning4j.pipeline.MappingDataPipe;
 import org.machinelearning4j.pipeline.NumericFeatureAndLabelExtractingDataMapper;
 /**
- *  Encapsulates a strategy for training an offline Regression algorithm to return a NumericHypothesisFunction on training completion.
+ *  Encapsulates a strategy for training an online Regression algorithm to return a NumericHypothesisFunction on training completion.
  *  
- *  The strategy is offline because the source data is loaded in full into memory before training starts and passed 
- *  to the regression algorithm as a feature matrix and label vector
+ *  The strategy is online because the source data is not required to be loaded into memory before training starts and data is passed 
+ *  to the regression algorithm as an Iterable
  *  
  *  Given a labeled training set, an implementation will run within a specified training context, and will extract source elements from the training set into numeric values
  *  and use a LabelMapper to map labels into numerics.
  * 
  * @author Michael Lavelle
  */
-public class OfflineTrainingStrategy<C,A extends RegressionAlgorithm<C>> implements TrainingStrategy<C,A>{
+public class OnlineTrainingStrategy<C,A extends OnlineRegressionAlgorithm<C>> implements TrainingStrategy<C,A>{
 	
 	private A regressionAlgorithm;
 	
-	public OfflineTrainingStrategy(A regressionAlgorithm)
+	public OnlineTrainingStrategy(A regressionAlgorithm)
 	{
 		this.regressionAlgorithm = regressionAlgorithm;
 	}
@@ -69,6 +70,7 @@ public class OfflineTrainingStrategy<C,A extends RegressionAlgorithm<C>> impleme
 		labeledTrainingSet.setBenchmarkFeatureMatrix(inMemoryNumericFeatures);
 		labeledTrainingSet.setBenchmarkLabels(inMemoryLabels);
 		
+		
 		DataPipe<?,NumericLabeledData> targetDataPipe = cachingPipe;
 		
 		if (labeledTrainingSet.isFeatureScalingConfigured())
@@ -90,16 +92,19 @@ public class OfflineTrainingStrategy<C,A extends RegressionAlgorithm<C>> impleme
 			
 		}
 
-		double[] numericLabels = new double[labeledTrainingSet.getSize()];
-		int labelIndex = 0;
-		while (targetDataPipe.hasNext())
+		
+		final DataPipe<?,NumericLabeledData> finalTargetDataPipe = targetDataPipe;
+		Iterable<NumericLabeledData> iterable = new Iterable<NumericLabeledData>()
 		{
-			NumericLabeledData labeledData = targetDataPipe.next();
-			numericLabels[labelIndex++] = labeledData.getLabel();
-		}
+
+			@Override
+			public Iterator<NumericLabeledData> iterator() {
+				return finalTargetDataPipe;
+			}
+			
+		};
 		
-		
-		return regressionAlgorithm.train(inMemoryNumericFeatures, numericLabels,trainingContext);
+		return regressionAlgorithm.train(iterable, labeledTrainingSet.getSize(),trainingContext);
 	}
 
 	@Override

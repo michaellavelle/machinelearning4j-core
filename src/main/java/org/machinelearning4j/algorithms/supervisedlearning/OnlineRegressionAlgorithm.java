@@ -15,24 +15,25 @@
  */
 package org.machinelearning4j.algorithms.supervisedlearning;
 
-
+import org.machinelearning4j.supervisedlearning.NumericLabeledData;
 /**
  * 
  * @author Michael Lavelle
  * 
- * A RegressionAlgorithm can be trained on a fixed-size collection of elements, each of which has a list of
+ * An online RegressionAlgorithm can be trained on Iterable training set - the iterators of which can obtain different windows on source data,
+ * in order to accommodate online learning.  This means that the entire training set does not need to be
+ * loaded into memory before training can begin.  Each element of the trainin sethas a list of
  * numeric features, and learns a NumericHypothesisFunction which can be used to predict the
  * value of numeric labels given the numeric features of a specific element.
  * 
- * The numeric features for a specific element are encapsulated in an array of doubles, with
- * the features for the input collection of training elements being encapsulated in a feature matrix with
- * columns for each feature, and rows for each element.
+ * The numeric features and labels for a specific element are encapsulated in a NumericLabeledData pojo, with
+ * the features for the input collection of training elements.
  *  * 
  * 
  */
-public interface RegressionAlgorithm<C> {
-	
-	public NumericHypothesisFunction train(double[][] featureMatrix,double[] labelVector,C trainingContext);
-	public Double predictLabel(double[] featureVector,NumericHypothesisFunction hypothesisFunction);
-	public boolean isFeatureScaledDataRequired();
+public interface OnlineRegressionAlgorithm<C> extends RegressionAlgorithm<C>{
+
+	public NumericHypothesisFunction train(Iterable<NumericLabeledData> labeledElements,long maxElementsToProcess,C trainingContext);
+
 }
+

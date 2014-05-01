@@ -27,7 +27,6 @@ import org.machinelearning4j.algorithms.supervisedlearning.NumericHypothesisFunc
 public class NumericLabelPredictor<T,L,C> implements
 		LabelPredictor<T, L,Number,C> {
 
-	private LinearRegressionAlgorithm<C> linearRegressionAlgorithm;
 	
 	private NumericHypothesisFunction hypothesisFunction;
 	
@@ -35,15 +34,14 @@ public class NumericLabelPredictor<T,L,C> implements
 	
 	private NumericLabelMapper<L> labelMapper;
 	
-	private TrainingStrategy<C> trainingStrategy;
+	private TrainingStrategy<C,LinearRegressionAlgorithm<C>> trainingStrategy;
 
 	
 	
 	public NumericLabelPredictor(NumericLabelMapper<L> labelMapper,
 			LinearRegressionAlgorithm<C> linearRegressionAlgorithm) {
-		this.linearRegressionAlgorithm = linearRegressionAlgorithm;
 		this.labelMapper = labelMapper;
-		trainingStrategy = new OfflineTrainingStrategy<C>(linearRegressionAlgorithm);
+		trainingStrategy = new OfflineTrainingStrategy<C,LinearRegressionAlgorithm<C>>(linearRegressionAlgorithm);
 		
 		
 	}
@@ -56,7 +54,7 @@ public class NumericLabelPredictor<T,L,C> implements
 	public void train(LabeledTrainingSet<T, L> labeledTrainingSet,C trainingContext) {
 		
 		this.labeledTrainingSet = labeledTrainingSet;
-		if (!labeledTrainingSet.isDataFeatureScaled() && linearRegressionAlgorithm.isFeatureScaledDataRequired())
+		if (!labeledTrainingSet.isDataFeatureScaled() && trainingStrategy.getAlgorithm().isFeatureScaledDataRequired())
 		{
 			throw new IllegalStateException("This regression algorithm requires " +
 					"that the data in the training set has been feature scaled");
@@ -90,7 +88,7 @@ public class NumericLabelPredictor<T,L,C> implements
 		{
 			featureValues = labeledTrainingSet.getFeatureScaler().scaleFeatures(featureValues,true);
 		}
-		return linearRegressionAlgorithm.predictLabel(featureValues, hypothesisFunction);
+		return trainingStrategy.getAlgorithm().predictLabel(featureValues, hypothesisFunction);
 	}
 
 	

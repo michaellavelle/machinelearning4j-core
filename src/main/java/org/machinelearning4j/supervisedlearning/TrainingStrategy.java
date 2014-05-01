@@ -16,17 +16,18 @@
 package org.machinelearning4j.supervisedlearning;
 
 import org.machinelearning4j.algorithms.supervisedlearning.NumericHypothesisFunction;
+import org.machinelearning4j.algorithms.supervisedlearning.RegressionAlgorithm;
 /**
- *  Encapsulates a strategy for training an algorithm to return a NumericHypothesisFunction on training completion.
+ *  Encapsulates a strategy for training a regression algorithm to return a NumericHypothesisFunction on training completion.
  *  
  *  Given a labeled training set, an implementation will run within a specified training context, and will extract source elements from the training set into numeric values
  *  and use a LabelMapper to map labels into numerics.
  * 
  * @author Michael Lavelle
  */
-public interface TrainingStrategy<C> {
+public interface TrainingStrategy<C,A extends RegressionAlgorithm<C>> {
 
 	public <T,L> NumericHypothesisFunction train(LabeledTrainingSet<T,L> labeledTrainingSet,NumericLabelMapper<L> labelMapper,C trainingContext);
-
+	public A getAlgorithm();
 }
 
