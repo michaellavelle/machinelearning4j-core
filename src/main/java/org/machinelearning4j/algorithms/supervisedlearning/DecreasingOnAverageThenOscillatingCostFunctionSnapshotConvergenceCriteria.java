@@ -20,8 +20,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.machinelearning4j.algorithms.ConvergenceCriteria;
 /**
- * Defines convergence criteria for the cost function of a gradient descent algorithm which is monotonically decreasing
- * with each iteration.
+ * Defines convergence criteria for the cost function of a gradient descent algorithm which is decreasing on
+ * average with each snapshot and then "converges" to a value which oscillates around the minimum where the oscillations
+ * are bounded by a small range.
  * 
  * @author Michael Lavelle
  */
@@ -31,10 +32,10 @@ public class DecreasingOnAverageThenOscillatingCostFunctionSnapshotConvergenceCr
 
 	
 	private double minimumInitialCostSnapshotDecreasePercentage;
-	private double declareConvergenceIfCostSnapshotDecreasesByLessThanPercentage;
+	private double declareConvergenceIfCostSnapshotMagnitudeChangesByLessThanPercentage;
 	
-	public DecreasingOnAverageThenOscillatingCostFunctionSnapshotConvergenceCriteria(double minimumInitialCostSnapshotDecreasePercentage,double declareConvergenceIfCostSnapshotDecreasesByLessThanPercentage) {
-		this.declareConvergenceIfCostSnapshotDecreasesByLessThanPercentage = declareConvergenceIfCostSnapshotDecreasesByLessThanPercentage;
+	public DecreasingOnAverageThenOscillatingCostFunctionSnapshotConvergenceCriteria(double minimumInitialCostSnapshotDecreasePercentage,double declareConvergenceIfCostSnapshotMagnitudeChangesByLessThanPercentage) {
+		this.declareConvergenceIfCostSnapshotMagnitudeChangesByLessThanPercentage = declareConvergenceIfCostSnapshotMagnitudeChangesByLessThanPercentage;
 		this.minimumInitialCostSnapshotDecreasePercentage = minimumInitialCostSnapshotDecreasePercentage;
 	}
 
@@ -73,7 +74,7 @@ public class DecreasingOnAverageThenOscillatingCostFunctionSnapshotConvergenceCr
 			double lastCostSnapshot = costFunctionSnapshots.get(costFunctionSnapshots.size() - 1);
 			double penultimateCostSnapshot = costFunctionSnapshots.get(costFunctionSnapshots.size() - 2);
 			double lastCostDecreasePercentage = (1d - lastCostSnapshot/penultimateCostSnapshot) * 100d;			
-			return Math.abs(lastCostDecreasePercentage) < declareConvergenceIfCostSnapshotDecreasesByLessThanPercentage;
+			return Math.abs(lastCostDecreasePercentage) < declareConvergenceIfCostSnapshotMagnitudeChangesByLessThanPercentage;
 		}
 		else
 		{
